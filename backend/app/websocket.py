@@ -153,6 +153,7 @@ def get_rag_query(conversation, user_msg_id, chat_input):
         # Invoke bedrock api
         response = invoke_bedrock_with_retries(args)
         # Use the product name returned by the LLM
+        logger.info(f"Bedrock response: {response}")
         query = response.output.message.content[0].text
         return query
     except Exception as e:
