@@ -41,7 +41,7 @@ def invoke_bedrock_with_retries(args: dict, try_count: int = 1) -> dict:
     client = get_bedrock_client()
     max_retries: int = 3
     try:
-        response = client.messages.create(**args)
+        response = client.converse(**args)
     except Exception as e:
         logger.error(f"Failed to invoke bedrock: {e}")
         if try_count > max_retries:
