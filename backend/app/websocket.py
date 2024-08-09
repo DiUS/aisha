@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import traceback
+import time
 from datetime import datetime
 from decimal import Decimal as decimal
 
@@ -21,7 +22,7 @@ from app.routes.schemas.conversation import ChatInput
 from app.stream import ConverseApiStreamHandler, OnStopInput
 from app.usecases.bot import modify_bot_last_used_time
 from app.usecases.chat import insert_knowledge, prepare_conversation, trace_to_root
-from app.utils import get_current_time
+from app.utils import get_current_time, get_bedrock_client
 from app.vector_search import filter_used_results, get_source_link, search_related_docs
 from boto3.dynamodb.conditions import Attr, Key
 from ulid import ULID
@@ -33,6 +34,135 @@ table = dynamodb_client.Table(WEBSOCKET_SESSION_TABLE_NAME)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+
+def invoke_bedrock_with_retries(args: dict, try_count: int = 1) -> dict:
+    """Invoke Bedrock with retries."""
+    client = get_bedrock_client()
+    max_retries: int = 3
+    try:
+        response = client.messages.create(**args)
+    except Exception as e:
+        logger.error(f"Failed to invoke bedrock: {e}")
+        if try_count > max_retries:
+            raise e
+        if "throttling" in str(e):
+            time.sleep(try_count * 5)
+            return invoke_bedrock_with_retries(args, try_count=try_count + 1)
+        raise e
+    return response
+
+
+def get_rag_query(conversation, user_msg_id, chat_input):
+    """Get query for RAG model."""
+    query = ""
+
+    model_id = "claude-v3-sonnet"
+
+    messages = trace_to_root(
+        node_id=chat_input.message.parent_message_id,
+        message_map=conversation.message_map,
+    )
+
+    formatted_conversation = ""
+    for message in messages:
+        if message.role == "user":
+            formatted_conversation += f"User: {message.content[-1].body}\n\n"
+        if message.role == "assistant":
+            formatted_conversation += f"Assistant: {message.content[-1].body}\n\n"
+    formatted_conversation += f"User: {chat_input.message.content[-1].body}\n\n"
+
+    # Ask the model what product are we taling about
+    template = """
+        Based on the following conversation:
+        {}
+
+        What is the relevant information to give to the vector search engine?
+
+        Here are a few examples of how you can respond:
+        <examples>
+            <example>
+                <input>
+                    User: Id like to buy in iphone.
+                    Assistant: Sure, which model are you interested in?
+                    User: I am interested in iPhone 13.
+                </input>
+                <output>
+                    "iPhone 13"
+                </output>
+            </example>
+            <example>
+                <input>
+                    User: I am interested in a tshirt.
+                    Assistant: Okay, I'd be happy to help you find a t-shirt! To narrow down the options, could you provide some more details? What style of t-shirt are you looking for - casual, athletic, graphic print? Do you have a preferred fit like slim, relaxed, or loose? And what size would you need? Any particular colors or designs you're interested in? The more specifics you can give me, the better I can suggest some relevant options from the available products
+                    User: casual, black, vneck, slim, L.
+                </input>
+                <output>
+                    "Black casual vneck large tshirt"
+                </output>
+            </example>
+            <example>
+                <input>
+                    User: I need a new job.
+                    Assistant: To better assist you in finding relevant engineering job opportunities, could you please provide some more details? What specific type of engineering role are you interested in (software, mechanical, civil, etc.)? Do you have a preferred location or are you open to remote opportunities? Any particular industry or company you’d like to target? The more specifics you can provide, the better I can narrow down the options from the opportunities I have available.
+                    User: software.
+                </input>
+                <output>
+                    "Software engineering job"
+                </output>
+            </example>
+            <example>
+                <input>
+                    User: I need a software engineering job.
+                    Assistant: Here are some relevant software engineering job opportunities in Bengaluru that I can suggest based on the provided contexts:
+                        Staff Software Engineer
+                        Software Engineer
+                        Senior Software Engineer in Test
+                    User: Give me details about the third option.
+                </input>
+                <output>
+                    "Senior Software Engineer in Test"
+                </output>
+            </example>
+        </examples>
+
+        If there are multiple subjects, provide them all. If there is no specific subject, give as much details and characteristics about what the user is looking for.
+        Format your answer as a single line of text.
+        """.format(formatted_conversation)
+
+    # Invoke Bedrock
+    args = compose_args_for_converse_api(
+        [
+            MessageModel(
+                role="user",
+                content=[ContentModel(content_type="text", body=template, media_type=None)],
+                model=model_id,
+                children=[],
+                parent=None,
+                create_time=get_current_time(),
+            ),
+        ],
+        model_id,
+        instruction="""
+            You are an helpful assistant that whose job is to understand what the user is enquirying about.
+        """,
+        stream=False,
+    )
+    try:
+        # Invoke bedrock api
+        response = invoke_bedrock_with_retries(args)
+        # Use the product name returned by the LLM
+        query = response.content[0].text
+        return query
+    except Exception as e:
+        logger.error(f"Failed to invoke bedrock: {e}")
+        # Use the last user message as the query
+        return (
+            conversation
+            .message_map[user_msg_id]
+            .content[-1]
+            .body
+        )
 
 
 def process_chat_input(
@@ -167,7 +297,13 @@ def process_chat_input(
 
         # Fetch most related documents from vector store
         # NOTE: Currently embedding not support multi-modal. For now, use the last text content.
-        query: str = conversation.message_map[user_msg_id].content[-1].body  # type: ignore[assignment]
+        # query: str = conversation.message_map[user_msg_id].content[-1].body  # type: ignore[assignment]
+        query = get_rag_query(
+            conversation,
+            user_msg_id,
+            chat_input
+        )
+        logger.debug(f"Query for RAG model: {query}")
         search_results = search_related_docs(bot=bot, query=query)
         logger.info(f"Search results from vector store: {search_results}")
 
