@@ -15,7 +15,7 @@ from app.agents.langchain import BedrockLLM
 from app.agents.tools.knowledge import AnswerWithKnowledgeTool
 from app.agents.utils import get_tool_by_name
 from app.auth import verify_token
-from app.bedrock import compose_args_for_converse_api, call_converse_api, ConverseApiRequest
+from app.bedrock import compose_args_for_converse_api, call_converse_api, ConverseApiRequest, ConverseApiResponse
 from app.repositories.conversation import RecordNotFoundError, store_conversation
 from app.repositories.models.conversation import ChunkModel, ContentModel, MessageModel
 from app.routes.schemas.conversation import ChatInput
@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def invoke_bedrock_with_retries(args: ConverseApiRequest, try_count: int = 1) -> dict:
+def invoke_bedrock_with_retries(args: ConverseApiRequest, try_count: int = 1) -> ConverseApiResponse:
     """Invoke Bedrock with retries."""
     max_retries: int = 3
     try:
@@ -153,7 +153,7 @@ def get_rag_query(conversation, user_msg_id, chat_input):
         # Invoke bedrock api
         response = invoke_bedrock_with_retries(args)
         # Use the product name returned by the LLM
-        query = response.content[0].text
+        query = response.output.message.content[0].text
         return query
     except Exception as e:
         logger.error(f"Failed to invoke bedrock: {e}")
