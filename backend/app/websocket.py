@@ -154,7 +154,7 @@ def get_rag_query(conversation, user_msg_id, chat_input):
         response = invoke_bedrock_with_retries(args)
         # Use the product name returned by the LLM
         logger.info(f"Bedrock response: {response}")
-        query = response.output.message.content[0].text
+        query = response['output']['message']['content'][0]['text']
         return query
     except Exception as e:
         logger.error(f"Failed to invoke bedrock: {e}")
