@@ -139,6 +139,8 @@ def get_rag_query(conversation, user_msg_id, chat_input):
                 model=model_id,
                 children=[],
                 parent=None,
+                feedback=None,
+                used_chunks=None,
                 create_time=get_current_time(),
             ),
         ],
