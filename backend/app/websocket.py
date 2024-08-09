@@ -15,14 +15,14 @@ from app.agents.langchain import BedrockLLM
 from app.agents.tools.knowledge import AnswerWithKnowledgeTool
 from app.agents.utils import get_tool_by_name
 from app.auth import verify_token
-from app.bedrock import compose_args_for_converse_api
+from app.bedrock import compose_args_for_converse_api, call_converse_api, ConverseApiRequest
 from app.repositories.conversation import RecordNotFoundError, store_conversation
 from app.repositories.models.conversation import ChunkModel, ContentModel, MessageModel
 from app.routes.schemas.conversation import ChatInput
 from app.stream import ConverseApiStreamHandler, OnStopInput
 from app.usecases.bot import modify_bot_last_used_time
 from app.usecases.chat import insert_knowledge, prepare_conversation, trace_to_root
-from app.utils import get_current_time, get_bedrock_client
+from app.utils import get_current_time
 from app.vector_search import filter_used_results, get_source_link, search_related_docs
 from boto3.dynamodb.conditions import Attr, Key
 from ulid import ULID
@@ -36,12 +36,11 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def invoke_bedrock_with_retries(args: dict, try_count: int = 1) -> dict:
+def invoke_bedrock_with_retries(args: ConverseApiRequest, try_count: int = 1) -> dict:
     """Invoke Bedrock with retries."""
-    client = get_bedrock_client()
     max_retries: int = 3
     try:
-        response = client.converse(**args)
+        response = call_converse_api(args)
     except Exception as e:
         logger.error(f"Failed to invoke bedrock: {e}")
         if try_count > max_retries:
