@@ -55,7 +55,7 @@ DEFAULT_SEARCH_CONFIG = {
 # NOTE: The following is based on 2024-03-07
 # See: https://aws.amazon.com/bedrock/pricing/
 BEDROCK_PRICING = {
-    "us-east-1": {
+    "ap-southeast-2": {
         "claude-instant-v1": {
             "input": 0.00080,
             "output": 0.00240,

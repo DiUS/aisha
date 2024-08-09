@@ -16,7 +16,7 @@ from app.utils import convert_dict_keys_to_camel_case, get_bedrock_client
 
 logger = logging.getLogger(__name__)
 
-BEDROCK_REGION = os.environ.get("BEDROCK_REGION", "us-east-1")
+BEDROCK_REGION = os.environ.get("BEDROCK_REGION", "ap-southeast-2")
 ENABLE_MISTRAL = os.environ.get("ENABLE_MISTRAL", "") == "true"
 DEFAULT_GENERATION_CONFIG = (
     DEFAULT_MISTRAL_GENERATION_CONFIG

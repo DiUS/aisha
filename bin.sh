@@ -41,7 +41,7 @@ IPV4_RANGES=""
 IPV6_RANGES=""
 DISABLE_IPV6="false"
 ALLOWED_SIGN_UP_EMAIL_DOMAINS=""
-BEDROCK_REGION="us-east-1"
+BEDROCK_REGION="ap-southeast-2"
 VERSION="v1"
 
 # Parse command-line arguments for customization

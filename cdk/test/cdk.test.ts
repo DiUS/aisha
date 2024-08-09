@@ -20,7 +20,7 @@ describe("Bedrock Chat Stack Test", () => {
       app,
       "IdentityProviderGenerateStack",
       {
-        bedrockRegion: "us-east-1",
+        bedrockRegion: "ap-southeast-2",
         crossRegionReferences: true,
         webAclId: "",
         identityProviders: [
@@ -78,7 +78,7 @@ describe("Bedrock Chat Stack Test", () => {
       app,
       "OidcProviderGenerateStack",
       {
-        bedrockRegion: "us-east-1",
+        bedrockRegion: "ap-southeast-2",
         crossRegionReferences: true,
         webAclId: "",
         identityProviders: [
@@ -134,7 +134,7 @@ describe("Bedrock Chat Stack Test", () => {
     cdk.Aspects.of(app).add(new AwsPrototypingChecks());
 
     const stack = new BedrockChatStack(app, "MyTestStack", {
-      bedrockRegion: "us-east-1",
+      bedrockRegion: "ap-southeast-2",
       crossRegionReferences: true,
       webAclId: "",
       identityProviders: [],
@@ -171,7 +171,7 @@ describe("Scheduler Test", () => {
     const app = new cdk.App();
 
     const hasScheduleStack = new BedrockChatStack(app, "HasSchedulesStack", {
-      bedrockRegion: "us-east-1",
+      bedrockRegion: "ap-southeast-2",
       crossRegionReferences: true,
       webAclId: "",
       identityProviders: [],
@@ -215,7 +215,7 @@ describe("Scheduler Test", () => {
   test("has'nt schedules", () => {
     const app = new cdk.App();
     const defaultStack = new BedrockChatStack(app, "DefaultStack", {
-      bedrockRegion: "us-east-1",
+      bedrockRegion: "ap-southeast-2",
       crossRegionReferences: true,
       webAclId: "",
       identityProviders: [],

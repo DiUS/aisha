@@ -34,7 +34,7 @@
 
 ## 🚀 まずはお試し
 
-- us-east-1 リージョンにて、[Bedrock Model access](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) > `Manage model access` > `Anthropic / Claude 3 Haiku`, `Anthropic / Claude 3 Sonnet`, `Anthropic / Claude 3.5 Sonnet` `Cohere / Embed Multilingual`をチェックし、`Save changes`をクリックします
+- ap-southeast-2 リージョンにて、[Bedrock Model access](https://ap-southeast-2.console.aws.amazon.com/bedrock/home?region=ap-southeast-2#/modelaccess) > `Manage model access` > `Anthropic / Claude 3 Haiku`, `Anthropic / Claude 3 Sonnet`, `Anthropic / Claude 3.5 Sonnet` `Cohere / Embed Multilingual`をチェックし、`Save changes`をクリックします
 
 <details>
 <summary>スクリーンショット</summary>
@@ -65,7 +65,7 @@ chmod +x bin.sh
 - **--ipv6-ranges**: 許可する IPv6 範囲のカンマ区切りリスト。（デフォルト: 全ての IPv6 アドレスを許可）
 - **--disable-ipv6**: IPv6 での接続を無効にします (デフォルト: 有効)
 - **--allowed-signup-email-domains**: サインアップ時に許可するメールドメインのカンマ区切りリスト。（デフォルト: ドメイン制限なし）
-- **--bedrock-region**: Bedrock が利用可能なリージョンを指定します。（デフォルト: us-east-1）
+- **--bedrock-region**: Bedrock が利用可能なリージョンを指定します。（デフォルト: ap-southeast-2）
 - **--version**: デプロイする Bedrock Claude Chat のバージョン。 (デフォルト: 開発中の最新バージョン)
 
 #### パラメータを指定したコマンド例:
@@ -212,7 +212,7 @@ GENERATION_CONFIG = {
 
 ### リソースの削除
 
-cli および CDK を利用されている場合、`cdk destroy`を実行してください。そうでない場合は[CloudFormation](https://console.aws.amazon.com/cloudformation/home)へアクセスし、手動で`BedrockChatStack`および`FrontendWafStack`を削除してください。なお`FrontendWafStack`は `us-east-1` リージョンにあります。
+cli および CDK を利用されている場合、`cdk destroy`を実行してください。そうでない場合は[CloudFormation](https://console.aws.amazon.com/cloudformation/home)へアクセスし、手動で`BedrockChatStack`および`FrontendWafStack`を削除してください。なお`FrontendWafStack`は `ap-southeast-2` リージョンにあります。
 
 ### RAG 用ベクトル DB の停止
 

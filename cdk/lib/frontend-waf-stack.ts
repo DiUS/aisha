@@ -81,9 +81,9 @@ export class FrontendWafStack extends Stack {
     }
 
     if (rules.length > 0) {
-      const webAcl = new wafv2.CfnWebACL(this, "WebAcl", {
+      const webAcl = new wafv2.CfnWebACL(this, "AishaWebAcl", {
         defaultAction: { block: {} },
-        name: "FrontendWebAcl",
+        name: "AishaFrontendWebAcl",
         scope: "CLOUDFRONT",
         visibilityConfig: {
           cloudWatchMetricsEnabled: true,

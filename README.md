@@ -26,7 +26,7 @@ Add your own instruction and give external knowledge as URL or files (a.k.a [RAG
 ![](./docs/imgs/bot_api_publish_screenshot3.png)
 
 > [!Important]
-> For governance reasons, only allowed users are able to create customized bots. To allow the creation of customized bots, the user must be a member of group called `CreatingBotAllowed`, which can be set up via the management console > Amazon Cognito User pools or aws cli. Note that the user pool id can be referred by accessing CloudFormation > BedrockChatStack > Outputs > `AuthUserPoolIdxxxx`.
+> For governance reasons, only allowed users are able to create customized bots. To allow the creation of customized bots, the user must be a member of group called `CreatingBotAllowed`, which can be set up via the management console > Amazon Cognito User pools or aws cli. Note that the user pool id can be referred by accessing CloudFormation > AishaBedrockChatStack > Outputs > `AuthUserPoolIdxxxx`.
 
 ### Administrator dashboard
 
@@ -63,7 +63,7 @@ By using the [Agent functionality](./docs/AGENT.md), your chatbot can automatica
 
 ## 🚀 Super-easy Deployment
 
-- In the us-east-1 region, open [Bedrock Model access](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) > `Manage model access` > Check `Anthropic / Claude 3 Haiku`, `Anthropic / Claude 3 Sonnet`, `Anthropic / Claude 3.5 Sonnet` and `Cohere / Embed Multilingual` then `Save changes`.
+- In the ap-southeast-2 region, open [Bedrock Model access](https://ap-southeast-2.console.aws.amazon.com/bedrock/home?region=ap-southeast-2#/modelaccess) > `Manage model access` > Check `Anthropic / Claude 3 Haiku`, `Anthropic / Claude 3 Sonnet`, `Anthropic / Claude 3.5 Sonnet` and `Cohere / Embed Multilingual` then `Save changes`.
 
 <details>
 <summary>Screenshot</summary>
@@ -93,7 +93,7 @@ You can specify the following parameters during deployment to enhance security a
 - **--ipv6-ranges**: Comma-separated list of allowed IPv6 ranges. (default: allow all ipv6 addresses)
 - **--disable-ipv6**: Disable connections over IPv6. (default: enabled)
 - **--allowed-signup-email-domains**: Comma-separated list of allowed email domains for sign-up. (default: no domain restriction)
-- **--bedrock-region**: Define the region where bedrock is available. (default: us-east-1)
+- **--bedrock-region**: Define the region where bedrock is available. (default: ap-southeast-2)
 - **--version**: The version of Bedrock Claude Chat to deploy. (default: latest version in development)
 
 #### Example command with parameters:
@@ -164,10 +164,10 @@ npm ci
 npm i -g aws-cdk
 ```
 
-- Before deploying the CDK, you will need to work with Bootstrap once for the region you are deploying to. In this example, we will deploy to the us-east-1 region. Please replace your account id into `<account id>`.
+- Before deploying the CDK, you will need to work with Bootstrap once for the region you are deploying to. In this example, we will deploy to the ap-southeast-2 region. Please replace your account id into `<account id>`.
 
 ```
-cdk bootstrap aws://<account id>/us-east-1
+cdk bootstrap aws://<account id>/ap-southeast-2
 ```
 
 - If necessary, edit the following entries in [cdk.json](./cdk/cdk.json) if necessary.
@@ -181,18 +181,18 @@ cdk bootstrap aws://<account id>/us-east-1
 cdk deploy --require-approval never --all
 ```
 
-- You will get output similar to the following. The URL of the web app will be output in `BedrockChatStack.FrontendURL`, so please access it from your browser.
+- You will get output similar to the following. The URL of the web app will be output in `AishaBedrockChatStack.FrontendURL`, so please access it from your browser.
 
 ```sh
- ✅  BedrockChatStack
+ ✅  AishaBedrockChatStack
 
 ✨  Deployment time: 78.57s
 
 Outputs:
-BedrockChatStack.AuthUserPoolClientIdXXXXX = xxxxxxx
-BedrockChatStack.AuthUserPoolIdXXXXXX = ap-northeast-1_XXXX
-BedrockChatStack.BackendApiBackendApiUrlXXXXX = https://xxxxx.execute-api.ap-northeast-1.amazonaws.com
-BedrockChatStack.FrontendURL = https://xxxxx.cloudfront.net
+AishaBedrockChatStack.AuthUserPoolClientIdXXXXX = xxxxxxx
+AishaBedrockChatStack.AuthUserPoolIdXXXXXX = ap-northeast-1_XXXX
+AishaBedrockChatStack.BackendApiBackendApiUrlXXXXX = https://xxxxx.execute-api.ap-northeast-1.amazonaws.com
+AishaBedrockChatStack.FrontendURL = https://xxxxx.cloudfront.net
 ```
 
 ## Others
@@ -225,7 +225,7 @@ DEFAULT_GENERATION_CONFIG = {
 
 ### Remove resources
 
-If using cli and CDK, please `cdk destroy`. If not, access [CloudFormation](https://console.aws.amazon.com/cloudformation/home) and then delete `BedrockChatStack` and `FrontendWafStack` manually. Please note that `FrontendWafStack` is in `us-east-1` region.
+If using cli and CDK, please `cdk destroy`. If not, access [CloudFormation](https://console.aws.amazon.com/cloudformation/home) and then delete `AishaBedrockChatStack` and `FrontendWafStack` manually. Please note that `FrontendWafStack` is in `ap-southeast-2` region.
 
 ### Stopping Vector DB for RAG
 

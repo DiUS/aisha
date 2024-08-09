@@ -53,7 +53,7 @@ const NATGATEWAY_COUNT: number = app.node.tryGetContext("natgatewayCount");
 // WAF for frontend
 // 2023/9: Currently, the WAF for CloudFront needs to be created in the North America region (us-east-1), so the stacks are separated
 // https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-wafv2-webacl.html
-const waf = new FrontendWafStack(app, `FrontendWafStack`, {
+const waf = new FrontendWafStack(app, `AishaFrontendWafStack`, {
   env: {
     // account: process.env.CDK_DEFAULT_ACCOUNT,
     region: "us-east-1",
@@ -62,7 +62,7 @@ const waf = new FrontendWafStack(app, `FrontendWafStack`, {
   allowedIpV6AddressRanges: ALLOWED_IP_V6_ADDRESS_RANGES,
 });
 
-const chat = new BedrockChatStack(app, `BedrockChatStack`, {
+const chat = new BedrockChatStack(app, `AishaBedrockChatStack`, {
   env: {
     // account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION,
