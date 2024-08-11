@@ -11,6 +11,7 @@ from botocore.exceptions import ClientError
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 agent_client = get_bedrock_agent_client()
 
 
@@ -79,10 +80,10 @@ def _pgvector_search(bot_id: str, limit: int, query: str) -> list[SearchResult]:
     logger.info(f"query_embedding: {query_embedding}")
 
     search_query = """
-SELECT id, botid, content, source, embedding 
-FROM items 
-WHERE botid = %s 
-ORDER BY embedding <-> %s 
+SELECT id, botid, content, source, embedding
+FROM items
+WHERE botid = %s
+ORDER BY embedding <-> %s
 LIMIT %s
 """
 

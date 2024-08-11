@@ -305,7 +305,7 @@ def process_chat_input(
             user_msg_id,
             chat_input
         )
-        logger.debug(f"Query for RAG model: {query}")
+        logger.info(f"Query for RAG model: {query}")
         search_results = search_related_docs(bot=bot, query=query)
         logger.info(f"Search results from vector store: {search_results}")
 
