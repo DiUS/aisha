@@ -16,6 +16,7 @@ class OnStopInput(BaseModel):
     input_token_count: int
     output_token_count: int
     price: float
+    trace: dict | None = None
 
 
 class ConverseApiStreamHandler:
@@ -58,6 +59,7 @@ class ConverseApiStreamHandler:
             messages=args["messages"],
             inferenceConfig=args["inference_config"],
             system=args["system"],
+            guardrailConfig=args["guardrail_config"],
         )
 
         completions = []
@@ -86,6 +88,7 @@ class ConverseApiStreamHandler:
                         input_token_count=input_token_count,
                         output_token_count=output_token_count,
                         price=price,
+                        trace=event.get("trace", None)
                     )
                 )
                 yield response

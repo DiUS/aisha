@@ -333,6 +333,7 @@ def process_chat_input(
         ),
         stream=True,
         generation_params=(bot.generation_params if bot else None),
+        use_guardrails=True
     )
 
     def on_stream(token: str, **kwargs) -> None:
@@ -393,6 +394,10 @@ def process_chat_input(
 
         # If continued, save the state
         conversation.should_continue = arg.stop_reason == "max_tokens"
+
+        # Guardrail intervened
+        if arg.stop_reason == "guardrail_intervened":
+            logger.error(f"Guardrail intervened. {arg.trace}")
 
         # Store conversation before finish streaming so that front-end can avoid 404 issue
         store_conversation(user_id, conversation)
