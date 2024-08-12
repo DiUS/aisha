@@ -120,7 +120,7 @@ def compose_args_for_converse_api(
     Ref: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-runtime/client/converse_stream.html
     """
     arg_messages = []
-    for message, idx in enumerate(messages):
+    for idx, message in enumerate(messages):
         if message.role not in ["system", "instruction"]:
             content_blocks = []
             for c in message.content:
