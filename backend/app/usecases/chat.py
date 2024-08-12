@@ -243,6 +243,7 @@ def insert_knowledge(
     conversation_with_context.message_map["instruction"].content[
         0
     ].body = inserted_prompt
+    conversation_with_context.message_map["instruction"].used_for_grounding = True
 
     return conversation_with_context
 

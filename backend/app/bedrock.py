@@ -132,8 +132,10 @@ def compose_args_for_converse_api(
                             content_blocks.append(
                                 {
                                     "guardContent": {
-                                        "text": {"text": c.body},
-                                        "qualifiers": ["query", "guard_content"]
+                                        "text": {
+                                            "text": c.body,
+                                            "qualifiers": ["query", "guard_content"]
+                                        }
                                     }
                                 }
                             )
@@ -201,7 +203,7 @@ def compose_args_for_converse_api(
         "system": [],
     }
     if instruction:
-        args["system"].append({"text": instruction})
+        args["system"].append({"text": { "text": instruction, "qualifiers": ["grounding_source"] }})
     if use_guardrails:
         args["guardrail_config"] = convert_dict_keys_to_camel_case({
             # Hardcoded guardrails reference

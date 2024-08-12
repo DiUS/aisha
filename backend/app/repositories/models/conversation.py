@@ -43,6 +43,7 @@ class MessageModel(BaseModel):
     create_time: float
     feedback: FeedbackModel | None
     used_chunks: list[ChunkModel] | None
+    used_for_grounding: bool = False
     thinking_log: str | None = Field(None, description="Only available for agent.")
 
     @classmethod
