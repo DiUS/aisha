@@ -19,6 +19,7 @@ import { CfnRouteResponse } from "aws-cdk-lib/aws-apigatewayv2";
 import { ISecret } from "aws-cdk-lib/aws-secretsmanager";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as s3 from "aws-cdk-lib/aws-s3";
+import { Guardrail } from "@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock";
 
 export interface WebSocketProps {
   readonly vpc: ec2.IVpc;
@@ -112,6 +113,8 @@ export class WebSocket extends Construct {
         LARGE_PAYLOAD_SUPPORT_BUCKET: largePayloadSupportBucket.bucketName,
         WEBSOCKET_SESSION_TABLE_NAME: props.websocketSessionTable.tableName,
         ENABLE_MISTRAL: props.enableMistral.toString(),
+        GUARDRAIL_ID: "gszoxoq81ovo",
+        GUARDRAIL_VERSION: "2"
       },
       role: handlerRole,
     });

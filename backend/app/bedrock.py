@@ -16,6 +16,9 @@ from app.utils import convert_dict_keys_to_camel_case, get_bedrock_client
 
 logger = logging.getLogger(__name__)
 
+GUARDRAIL_ID = os.environ.get("GUARDRAIL_ID", "gszoxoq81ovo")
+GUARDRAIL_VERSION = os.environ.get("GUARDRAIL_VERSION", "1")
+BEDROCK_REGION = os.environ.get("BEDROCK_REGION", "ap-southeast-2")
 BEDROCK_REGION = os.environ.get("BEDROCK_REGION", "ap-southeast-2")
 ENABLE_MISTRAL = os.environ.get("ENABLE_MISTRAL", "") == "true"
 DEFAULT_GENERATION_CONFIG = (
@@ -217,10 +220,8 @@ def compose_args_for_converse_api(
 
     if use_guardrails:
         args["guardrail_config"] = convert_dict_keys_to_camel_case({
-            # Hardcoded guardrails reference
-            # TODO: Get guardrails into bot configuration
-            "guardrail_identifier": "gszoxoq81ovo",
-            "guardrail_version": "1",
+            "guardrail_identifier": GUARDRAIL_ID,
+            "guardrail_version": GUARDRAIL_VERSION,
             "trace": "enabled"
         })
     return args
