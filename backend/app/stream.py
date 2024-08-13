@@ -64,6 +64,7 @@ class ConverseApiStreamHandler:
 
         completions = []
         stop_reason = ""
+        trace = None
         for event in response["stream"]:
             if "contentBlockDelta" in event:
                 text = event["contentBlockDelta"]["delta"]["text"]
@@ -72,6 +73,8 @@ class ConverseApiStreamHandler:
                 yield response
             elif "messageStop" in event:
                 stop_reason = event["messageStop"]["stopReason"]
+                if "trace" in event:
+                    trace = event["trace"]
             elif "metadata" in event:
                 metadata = event["metadata"]
                 usage = metadata["usage"]
@@ -88,7 +91,7 @@ class ConverseApiStreamHandler:
                         input_token_count=input_token_count,
                         output_token_count=output_token_count,
                         price=price,
-                        trace=event.get("trace", None)
+                        trace=trace
                     )
                 )
                 yield response
