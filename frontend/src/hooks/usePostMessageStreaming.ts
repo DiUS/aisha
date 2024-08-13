@@ -46,6 +46,7 @@ const usePostMessageStreaming = create<{
         const ws = new WebSocket(WS_ENDPOINT);
 
         ws.onopen = () => {
+          console.log('usePostMessage Open', token)
           ws.send(
             JSON.stringify({
               step: PostStreamingStatus.START,
@@ -55,6 +56,7 @@ const usePostMessageStreaming = create<{
         };
 
         ws.onmessage = (message) => {
+          console.log('usePostMessage', message)
           try {
             if (
               message.data === '' ||

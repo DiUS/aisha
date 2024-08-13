@@ -451,6 +451,7 @@ def handler(event, context):
     expire = int(now.timestamp()) + 60 * 2  # 2 minute from now
     body = json.loads(event["body"])
     step = body.get("step")
+    logger.info(f"### Step is : ${step} ####")
 
     try:
         # API Gateway (websocket) has hard limit of 32KB per message, so if the message is larger than that,
@@ -464,14 +465,14 @@ def handler(event, context):
         # 5. Client sends `END` message to the WebSocket API.
         # 6. This handler receives the `END` message, concatenates the parts and sends the message to Bedrock.
         if step == "START":
-            token = body["token"]
-            try:
-                # Verify JWT token
-                decoded = verify_token(token)
-            except Exception as e:
-                logger.error(f"Invalid token: {e}")
-                return {"statusCode": 403, "body": "Invalid token."}
-            user_id = decoded["sub"]
+            # token = body["token"]
+            # try:
+            #     # Verify JWT token
+            #     decoded = verify_token(token)
+            # except Exception as e:
+            #     logger.error(f"Invalid token: {e}")
+            #     return {"statusCode": 403, "body": "Invalid token."}
+            # user_id = decoded["sub"]
 
             # Store user id
             response = table.put_item(
@@ -479,8 +480,8 @@ def handler(event, context):
                     "ConnectionId": connection_id,
                     # Store as zero
                     "MessagePartId": decimal(0),
-                    "UserId": user_id,
-                    "expire": expire,
+                    "UserId": '123',
+                    # "expire": expire,
                 }
             )
             return {"statusCode": 200, "body": "Session started."}
