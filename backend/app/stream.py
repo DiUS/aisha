@@ -73,11 +73,10 @@ class ConverseApiStreamHandler:
                 yield response
             elif "messageStop" in event:
                 stop_reason = event["messageStop"]["stopReason"]
-                if "trace" in event:
-                    trace = event["trace"]
             elif "metadata" in event:
                 metadata = event["metadata"]
                 usage = metadata["usage"]
+                trace = metadata["trace"]
                 input_token_count = usage["inputTokens"]
                 output_token_count = usage["outputTokens"]
                 price = calculate_price(
@@ -91,7 +90,7 @@ class ConverseApiStreamHandler:
                         input_token_count=input_token_count,
                         output_token_count=output_token_count,
                         price=price,
-                        trace=trace
+                        trace=trace,
                     )
                 )
                 yield response
