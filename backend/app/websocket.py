@@ -15,7 +15,7 @@ from app.agents.langchain import BedrockLLM
 from app.agents.tools.knowledge import AnswerWithKnowledgeTool
 from app.agents.utils import get_tool_by_name
 from app.auth import verify_token
-from app.bedrock import compose_args_for_converse_api, call_converse_api, ConverseApiRequest, ConverseApiResponse
+from app.bedrock import compose_args_for_converse_api, call_converse_api, ConverseApiRequest, ConverseApiResponse, get_model_id
 from app.repositories.conversation import RecordNotFoundError, store_conversation
 from app.repositories.models.conversation import ChunkModel, ContentModel, MessageModel
 from app.routes.schemas.conversation import ChatInput
@@ -52,11 +52,11 @@ def invoke_bedrock_with_retries(args: ConverseApiRequest, try_count: int = 1) ->
     return response
 
 
-def get_rag_query(conversation, user_msg_id, chat_input):
+def get_rag_query(conversation, user_msg_id, chat_input, model=None):
     """Get query for RAG model."""
     query = ""
 
-    model_id = "claude-v3-sonnet"
+    model_id = "claude-v3-sonnet" if model is None else get_model_id(model)
 
     messages = trace_to_root(
         node_id=chat_input.message.parent_message_id,
@@ -303,7 +303,8 @@ def process_chat_input(
         query = get_rag_query(
             conversation,
             user_msg_id,
-            chat_input
+            chat_input,
+            chat_input.message.model,
         )
         logger.info(f"Query for RAG model: {query}")
         search_results = search_related_docs(bot=bot, query=query)
