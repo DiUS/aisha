@@ -41,6 +41,11 @@ class GenerationParamsModel(BaseModel):
     stop_sequences: list[str]
 
 
+class GuardrailConfig(BaseModel):
+    id: str
+    version: str
+
+
 class SearchParamsModel(BaseModel):
     max_results: int
 
@@ -84,6 +89,7 @@ class BotModel(BaseModel):
     display_retrieved_chunks: bool
     conversation_quick_starters: list[ConversationQuickStarterModel]
     bedrock_knowledge_base: BedrockKnowledgeBaseModel | None
+    guardrail_config: GuardrailConfig | None
 
     def has_knowledge(self) -> bool:
         return (

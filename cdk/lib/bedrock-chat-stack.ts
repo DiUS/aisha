@@ -24,6 +24,7 @@ import { CronScheduleProps, createCronSchedule } from "./utils/cron-schedule";
 import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
 import * as path from "path";
 import { BedrockKnowledgeBaseCodebuild } from "./constructs/bedrock-knowledge-base-codebuild";
+import { Guardrail } from "./constructs/guardrail";
 
 export interface BedrockChatStackProps extends StackProps {
   readonly bedrockRegion: string;
@@ -169,6 +170,84 @@ export class BedrockChatStack extends cdk.Stack {
       sourceDatabase: database,
     });
 
+    // Default guardrail
+    const guardrail = new Guardrail(this, "DefaultGuardrail", {
+      blockedInputMessaging: 'The model cannot answer this.',
+      blockedOutputsMessaging: 'The model failed to answer this.',
+      name: 'AishaDefaultGuardrail',
+
+      contentPolicyConfig: {
+        filtersConfig: [{
+          inputStrength: 'HIGH',
+          outputStrength: 'HIGH',
+          type: 'SEXUAL',
+        }, {
+          inputStrength: 'HIGH',
+          outputStrength: 'HIGH',
+          type: 'HATE',
+        }, {
+          inputStrength: 'HIGH',
+          outputStrength: 'HIGH',
+          type: 'VIOLENCE',
+        }, {
+          inputStrength: 'HIGH',
+          outputStrength: 'HIGH',
+          type: 'INSULTS',
+        }, {
+          inputStrength: 'HIGH',
+          outputStrength: 'HIGH',
+          type: 'MISCONDUCT',
+        }, {
+          inputStrength: 'HIGH',
+          outputStrength: 'NONE',
+          type: 'PROMPT_ATTACK',
+        }],
+      },
+      description: 'standard guardrail. Extremely restrictive',
+      // Can add PII if necessary
+      // sensitiveInformationPolicyConfig: {
+      //   piiEntitiesConfig: [{
+      //     action: 'action',
+      //     type: 'type',
+      //   }],
+      //   regexesConfig: [{
+      //     action: 'action',
+      //     name: 'name',
+      //     pattern: 'pattern',
+
+      //     // the properties below are optional
+      //     description: 'description',
+      //   }],
+      // },
+      topicPolicyConfig: {
+        topicsConfig: [{
+          definition: 'Anything related to political opinions or advises',
+          name: 'Politics',
+          type: 'DENY',
+        }],
+      },
+      wordPolicyConfig: {
+        managedWordListsConfig: [{
+          type: 'PROFANITY',
+        }],
+        // Can add specific words to block
+        // wordsConfig: [{
+        //   text: 'word to block'
+        // }],
+      },
+      // TODO: At the time of writing, this is not supported by the CDK yet.
+      // Need to manually update the guardrail in the console.
+      // contextualGroundingPolicyConfig: {
+      //   filtersConfig: [{
+      //     threshold: 0.7,
+      //     type: 'GROUNDING'
+      //   }, {
+      //     threshold: 0.7,
+      //     type: 'SIMILARITY'
+      //   }]
+      // },
+    });
+
     const backendApi = new Api(this, "BackendApi", {
       vpc,
       database: database.table,
@@ -182,6 +261,7 @@ export class BedrockChatStack extends cdk.Stack {
       usageAnalysis,
       largeMessageBucket,
       enableMistral: props.enableMistral,
+      guardrail: guardrail,
     });
     documentBucket.grantReadWrite(backendApi.handler);
 
@@ -198,6 +278,7 @@ export class BedrockChatStack extends cdk.Stack {
       largeMessageBucket,
       documentBucket,
       enableMistral: props.enableMistral,
+      guardrail: guardrail,
     });
     frontend.buildViteApp({
       backendApiEndpoint: backendApi.api.apiEndpoint,
@@ -243,6 +324,12 @@ export class BedrockChatStack extends cdk.Stack {
       }
     );
 
+    new CfnOutput(this, "DefaultGuardrailId", {
+      value: guardrail.guardrail.attrGuardrailId,
+    });
+    new CfnOutput(this, "DefaultGuardrailVersion", {
+      value: guardrail.version.attrVersion,
+    });
     new CfnOutput(this, "DocumentBucketName", {
       value: documentBucket.bucketName,
     });

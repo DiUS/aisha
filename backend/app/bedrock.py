@@ -10,11 +10,12 @@ from app.config import BEDROCK_PRICING, DEFAULT_EMBEDDING_CONFIG
 from app.config import DEFAULT_GENERATION_CONFIG as DEFAULT_CLAUDE_GENERATION_CONFIG
 from app.config import DEFAULT_MISTRAL_GENERATION_CONFIG
 from app.repositories.models.conversation import MessageModel
-from app.repositories.models.custom_bot import GenerationParamsModel
+from app.repositories.models.custom_bot import GenerationParamsModel, GuardrailConfig
 from app.routes.schemas.conversation import type_model_name
 from app.utils import convert_dict_keys_to_camel_case, get_bedrock_client
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 GUARDRAIL_ID = os.environ.get("GUARDRAIL_ID", "gszoxoq81ovo")
 GUARDRAIL_VERSION = os.environ.get("GUARDRAIL_VERSION", "1")
@@ -117,12 +118,16 @@ def compose_args_for_converse_api(
     instruction: str | None = None,
     stream: bool = False,
     generation_params: GenerationParamsModel | None = None,
-    use_guardrails: bool = False,
+    guardrail_config: GuardrailConfig | None = None,
 ) -> ConverseApiRequest:
     """Compose arguments for Converse API.
     Ref: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-runtime/client/converse_stream.html
     """
     arg_messages = []
+    use_guardrails = guardrail_config is not None
+    logger.info(f"Use guardrails: {use_guardrails}")
+    if use_guardrails:
+        logger.info(f"Guardrail config: id = {guardrail_config.id}, version = {guardrail_config.version}")
     for idx, message in enumerate(messages):
         if message.role not in ["system", "instruction"]:
             content_blocks = []
@@ -220,8 +225,8 @@ def compose_args_for_converse_api(
 
     if use_guardrails:
         args["guardrail_config"] = convert_dict_keys_to_camel_case({
-            "guardrail_identifier": GUARDRAIL_ID,
-            "guardrail_version": GUARDRAIL_VERSION,
+            "guardrail_identifier": guardrail_config.id if guardrail_config.id != '' else GUARDRAIL_ID,
+            "guardrail_version": guardrail_config.version if guardrail_config.version != '' else GUARDRAIL_VERSION,
             "trace": "enabled"
         })
     return args

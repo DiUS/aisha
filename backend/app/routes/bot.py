@@ -13,6 +13,8 @@ from app.routes.schemas.bot import (
     BotInput,
     BotMetaOutput,
     BotModifyInput,
+    GuardrailListOutput,
+    GuardrailConfig,
     BotOutput,
     BotPinnedInput,
     BotPresignedUrlOutput,
@@ -34,6 +36,7 @@ from app.usecases.bot import (
     modify_pin_status,
     remove_bot_by_id,
     remove_uploaded_file,
+    fetch_guardrails
 )
 from app.user import User
 from fastapi import APIRouter, Depends, Request
@@ -51,6 +54,12 @@ def post_bot(
     current_user: User = request.state.current_user
 
     return create_new_bot(current_user.id, bot_input)
+
+
+@router.get("/bot/guardrails", response_model=GuardrailListOutput)
+def get_guardrails():
+    """Get guardrails for bot creation."""
+    return fetch_guardrails()
 
 
 @router.patch("/bot/{bot_id}")
@@ -178,6 +187,14 @@ def get_private_bot(request: Request, bot_id: str):
         bedrock_knowledge_base=(
             BedrockKnowledgeBaseOutput(**bot.bedrock_knowledge_base.model_dump())
             if bot.bedrock_knowledge_base
+            else None
+        ),
+        guardrail_config=(
+            GuardrailConfig(
+                id=bot.guardrail_config.id,
+                version=bot.guardrail_config.version,
+            )
+            if bot.guardrail_config
             else None
         ),
     )

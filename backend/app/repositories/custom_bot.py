@@ -30,6 +30,7 @@ from app.repositories.models.custom_bot import (
     GenerationParamsModel,
     KnowledgeModel,
     SearchParamsModel,
+    GuardrailConfig
 )
 from app.repositories.models.custom_bot_kb import BedrockKnowledgeBaseModel
 from app.routes.schemas.bot import type_sync_status
@@ -82,6 +83,9 @@ def store_bot(user_id: str, custom_bot: BotModel):
     if custom_bot.bedrock_knowledge_base:
         item["BedrockKnowledgeBase"] = custom_bot.bedrock_knowledge_base.model_dump()
 
+    if custom_bot.guardrail_config:
+        item["GuardrailConfig"] = custom_bot.guardrail_config.model_dump()
+
     response = table.put_item(Item=item)
     return response
 
@@ -102,6 +106,7 @@ def update_bot(
     display_retrieved_chunks: bool,
     conversation_quick_starters: list[ConversationQuickStarterModel],
     bedrock_knowledge_base: BedrockKnowledgeBaseModel | None = None,
+    guardrail_config: GuardrailConfig | None = None,
 ):
     """Update bot title, description, and instruction.
     NOTE: Use `update_bot_visibility` to update visibility.
@@ -144,6 +149,12 @@ def update_bot(
         update_expression += ", BedrockKnowledgeBase = :bedrock_knowledge_base"
         expression_attribute_values[":bedrock_knowledge_base"] = (
             bedrock_knowledge_base.model_dump()
+        )
+
+    if guardrail_config:
+        update_expression += ", GuardrailConfig = :guardrail_config"
+        expression_attribute_values[":guardrail_config"] = (
+            guardrail_config.model_dump()
         )
 
     try:
@@ -461,6 +472,11 @@ def find_private_bot_by_id(user_id: str, bot_id: str) -> BotModel:
             if "BedrockKnowledgeBase" in item
             else None
         ),
+        guardrail_config=(
+            GuardrailConfig(**item["GuardrailConfig"])
+            if "GuardrailConfig" in item
+            else None
+        ),
     )
 
     logger.info(f"Found bot: {bot}")
@@ -552,6 +568,11 @@ def find_public_bot_by_id(bot_id: str) -> BotModel:
         bedrock_knowledge_base=(
             BedrockKnowledgeBaseModel(**item["BedrockKnowledgeBase"])
             if "BedrockKnowledgeBase" in item
+            else None
+        ),
+        guardrail_config=(
+            GuardrailConfig(**item["GuardrailConfig"])
+            if "GuardrailConfig" in item
             else None
         ),
     )

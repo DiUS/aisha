@@ -42,6 +42,9 @@ const useBot = (shouldAutoRefreshMyBots?: boolean) => {
     getMyBot: async (botId: string) => {
       return (await api.getOnceMyBot(botId)).data;
     },
+    getGuardrails: async () => {
+      return (await api.guardrails()).data;
+    },
     registerBot: (params: RegisterBotRequest) => {
       mutateMyBots(
         produce(myBots, (draft) => {

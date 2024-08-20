@@ -96,6 +96,18 @@ class ConversationQuickStarter(BaseSchema):
     example: str
 
 
+class GuardrailDataOutput(BaseSchema):
+    id: str
+    versions: list[str]
+    name: str
+    default: bool = False
+
+
+class GuardrailConfig(BaseSchema):
+    id: str
+    version: str
+
+
 class BotInput(BaseSchema):
     id: str
     title: str
@@ -109,6 +121,7 @@ class BotInput(BaseSchema):
     display_retrieved_chunks: bool
     conversation_quick_starters: list[ConversationQuickStarter] | None
     bedrock_knowledge_base: BedrockKnowledgeBaseInput | None = None
+    guardrail_config: GuardrailConfig | None = None
 
 
 class BotModifyInput(BaseSchema):
@@ -123,6 +136,7 @@ class BotModifyInput(BaseSchema):
     display_retrieved_chunks: bool
     conversation_quick_starters: list[ConversationQuickStarter] | None
     bedrock_knowledge_base: BedrockKnowledgeBaseInput | None = None
+    guardrail_config: GuardrailConfig | None = None
 
     def has_update_files(self) -> bool:
         return self.knowledge is not None and (
@@ -178,6 +192,11 @@ class BotModifyOutput(BaseSchema):
     knowledge: Knowledge
     conversation_quick_starters: list[ConversationQuickStarter]
     bedrock_knowledge_base: BedrockKnowledgeBaseOutput | None
+    guardrail_config: GuardrailConfig | None = None
+
+
+class GuardrailListOutput(BaseSchema):
+    guardrails: list[GuardrailDataOutput]
 
 
 class BotOutput(BaseSchema):
@@ -202,6 +221,7 @@ class BotOutput(BaseSchema):
     display_retrieved_chunks: bool
     conversation_quick_starters: list[ConversationQuickStarter]
     bedrock_knowledge_base: BedrockKnowledgeBaseOutput | None
+    guardrail_config: GuardrailConfig | None = None
 
 
 class BotMetaOutput(BaseSchema):

@@ -23,6 +23,7 @@ import { IBucket } from "aws-cdk-lib/aws-s3";
 import { ISecret } from "aws-cdk-lib/aws-secretsmanager";
 import * as codebuild from "aws-cdk-lib/aws-codebuild";
 import { UsageAnalysis } from "./usage-analysis";
+import { Guardrail } from "./guardrail";
 export interface ApiProps {
   readonly vpc: ec2.IVpc;
   readonly database: ITable;
@@ -37,6 +38,7 @@ export interface ApiProps {
   readonly bedrockKnowledgeBaseProject: codebuild.IProject;
   readonly usageAnalysis?: UsageAnalysis;
   readonly enableMistral: boolean;
+  readonly guardrail: Guardrail;
 }
 
 export class Api extends Construct {
@@ -206,6 +208,7 @@ export class Api extends Construct {
         USAGE_ANALYSIS_WORKGROUP: props.usageAnalysis?.workgroupName || "",
         USAGE_ANALYSIS_OUTPUT_LOCATION: usageAnalysisOutputLocation,
         ENABLE_MISTRAL: props.enableMistral.toString(),
+        DEFAULT_GUARDRAIL_ID: props.guardrail.guardrail.attrGuardrailId,
       },
       role: handlerRole,
     });

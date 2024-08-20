@@ -137,6 +137,11 @@ It's an architecture built on AWS managed services, eliminating the need for inf
 
 ## Deploy using CDK
 
+### TODOs
+
+- [ ] Default guardrail does not contain the context grounding as this is not available in the cdk yet (Eventhough it exists for Cloud Formation templates). Need to add this manually and create a new version.
+
+
 Super-easy Deployment uses [AWS CodeBuild](https://aws.amazon.com/codebuild/) to perform deployment by CDK internally. This section describes the procedure for deploying directly with CDK.
 
 - Please have UNIX, Docker and a Node.js runtime environment. If not, you can also use [Cloud9](https://github.com/aws-samples/cloud9-setup-for-prototyping)

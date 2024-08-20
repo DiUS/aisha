@@ -218,3 +218,14 @@ def query_postgres(
     if include_columns:
         return columns, res
     return res
+
+
+def list_guardrails(id: str | None = None) -> List[dict]:
+    """List all guardrails. Giving an ID will return all versions of the guardrail with that ID."""
+    logger.info(f"Listing guardrails with id: {id}")
+    client = boto3.client("bedrock", region_name=REGION)
+    response = client.list_guardrails(guardrailIdentifier=id) if id else client.list_guardrails()
+    logger.info(f"Result: {response}")
+    results = response["guardrails"] if "guardrails" in response else []
+    logger.info(f"Guardrails: {results}")
+    return results

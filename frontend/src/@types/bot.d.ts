@@ -69,6 +69,7 @@ export type BotDetails = BotMeta & {
   syncStatusReason: string;
   displayRetrievedChunks: boolean;
   conversationQuickStarters: ConversationQuickStarter[];
+  guardrailConfig: GuardrailConfig;
 };
 
 export type BotSummary = BotMeta & {
@@ -84,6 +85,18 @@ export type BotFile = {
   progress?: number;
 };
 
+export type GuardrailConfig = {
+  version: string;
+  id: string;
+}
+
+export type GuardrailDisplayData = {
+  name: string;
+  id: string;
+  versions: string[];
+  default?: boolean;
+}
+
 export type RegisterBotRequest = {
   id: string;
   title: string;
@@ -96,6 +109,7 @@ export type RegisterBotRequest = {
   knowledge?: BotKnowledge;
   displayRetrievedChunks: boolean;
   conversationQuickStarters: ConversationQuickStarter[];
+  guardrailConfig: GuardrailConfig;
 };
 
 export type RegisterBotResponse = BotDetails;
@@ -111,6 +125,7 @@ export type UpdateBotRequest = {
   knowledge?: BotKnowledgeDiff;
   displayRetrievedChunks: boolean;
   conversationQuickStarters: ConversationQuickStarter[];
+  guardrailConfig: GuardrailConfig;
 };
 
 export type UpdateBotResponse = {
@@ -162,4 +177,8 @@ export type GetPublicBotResponse = BotDetails;
 
 export type GetPresignedUrlResponse = {
   url: string;
+};
+
+export type GetGuardrailsResponse = {
+  guardrails: GuardrailDisplayData[];
 };

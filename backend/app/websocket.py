@@ -56,7 +56,7 @@ def get_rag_query(conversation, user_msg_id, chat_input, model=None):
     """Get query for RAG model."""
     query = ""
 
-    model_id = "claude-v3-sonnet" if model is None else get_model_id(model)
+    model = "claude-v3-sonnet" if model is None else model
 
     messages = trace_to_root(
         node_id=chat_input.message.parent_message_id,
@@ -131,11 +131,11 @@ def get_rag_query(conversation, user_msg_id, chat_input, model=None):
 
     # Invoke Bedrock
     args = compose_args_for_converse_api(
-        [
+        messages=[
             MessageModel(
                 role="user",
                 content=[ContentModel(content_type="text", body=template, media_type=None)],
-                model=model_id,
+                model=model,
                 children=[],
                 parent=None,
                 feedback=None,
@@ -143,7 +143,7 @@ def get_rag_query(conversation, user_msg_id, chat_input, model=None):
                 create_time=get_current_time(),
             ),
         ],
-        model_id,
+        model=model,
         instruction="""
             You are an helpful assistant that whose job is to understand what the user is enquirying about.
         """,
@@ -190,6 +190,7 @@ def process_chat_input(
         else:
             return {"statusCode": 400, "body": "Invalid request."}
 
+    logger.info(f"Found bot: {bot}")
     if bot and bot.is_agent_enabled():
         logger.info("Bot has agent tools. Using agent for response.")
         llm = BedrockLLM.from_model(model=chat_input.message.model)
@@ -334,7 +335,7 @@ def process_chat_input(
         ),
         stream=True,
         generation_params=(bot.generation_params if bot else None),
-        use_guardrails=True
+        guardrail_config=(bot.guardrail_config if bot else None),
     )
 
     def on_stream(token: str, **kwargs) -> None:
@@ -415,6 +416,7 @@ def process_chat_input(
         on_stop=on_stop,
     )
     try:
+        logger.info(f"Running stream handler with args: {args}")
         for _ in stream_handler.run(args):
             # `StreamHandler.run` returns a generator, so need to iterate
             ...

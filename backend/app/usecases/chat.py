@@ -237,7 +237,6 @@ def insert_knowledge(
         return conversation
 
     inserted_prompt = build_rag_prompt(conversation, search_results, display_citation)
-    logger.info(f"Inserted prompt: {inserted_prompt}")
 
     conversation_with_context = deepcopy(conversation)
     conversation_with_context.message_map["instruction"].content[

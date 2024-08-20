@@ -4,6 +4,7 @@ import {
   GetBotsRequest,
   GetBotsResponse,
   GetMyBotResponse,
+  GetGuardrailsResponse,
   GetPresignedUrlResponse,
   RegisterBotRequest,
   RegisterBotResponse,
@@ -27,6 +28,9 @@ const useBotApi = () => {
       return http.get<GetBotsResponse>(['bot', req], {
         refreshInterval: refreshIntervalFunction,
       });
+    },
+    guardrails: () => {
+      return http.getOnce<GetGuardrailsResponse>('bot/guardrails');
     },
     getOnceMyBot: (botId: string) => {
       return http.getOnce<GetMyBotResponse>(`bot/private/${botId}`);

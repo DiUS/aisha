@@ -39,6 +39,7 @@ import Toggle from '../components/Toggle';
 import { useAgent } from '../features/agent/hooks/useAgent';
 import { AgentTool } from '../features/agent/types';
 import { AvailableTools } from '../features/agent/components/AvailableTools';
+import GuardrailConfig from '../components/GuardrailConfig';
 
 const edgeGenerationParams =
   import.meta.env.VITE_APP_ENABLE_MISTRAL === 'true'
@@ -78,6 +79,8 @@ const BotEditPage: React.FC = () => {
   );
   const [topK, setTopK] = useState<number>(defaultGenerationConfig.topK);
   const [topP, setTopP] = useState<number>(defaultGenerationConfig.topP);
+  const [guardrailId, setGuardrailId] = useState<string>('');
+  const [guardrailVersion, setGuardrailVersion] = useState<string>('');
   const [temperature, setTemperature] = useState<number>(
     defaultGenerationConfig.temperature
   );
@@ -158,6 +161,8 @@ const BotEditPage: React.FC = () => {
                   },
                 ]
           );
+          setGuardrailId(bot.guardrailConfig.id);
+          setGuardrailVersion(bot.guardrailConfig.version);
         })
         .finally(() => {
           setIsLoading(false);
@@ -488,6 +493,10 @@ const BotEditPage: React.FC = () => {
       conversationQuickStarters: conversationQuickStarters.filter(
         (qs) => qs.title !== '' && qs.example !== ''
       ),
+      guardrailConfig: {
+        id: guardrailId,
+        version: guardrailVersion,
+      }
     })
       .then(() => {
         navigate('/bot/explore');
@@ -517,6 +526,8 @@ const BotEditPage: React.FC = () => {
     displayRetrievedChunks,
     conversationQuickStarters,
     navigate,
+    guardrailId,
+    guardrailVersion,
   ]);
 
   const onClickEdit = useCallback(() => {
@@ -558,6 +569,10 @@ const BotEditPage: React.FC = () => {
         conversationQuickStarters: conversationQuickStarters.filter(
           (qs) => qs.title !== '' && qs.example !== ''
         ),
+        guardrailConfig: {
+          id: guardrailId,
+          version: guardrailVersion,
+        }
       })
         .then(() => {
           navigate('/bot/explore');
@@ -591,6 +606,8 @@ const BotEditPage: React.FC = () => {
     displayRetrievedChunks,
     conversationQuickStarters,
     navigate,
+    guardrailId,
+    guardrailVersion,
   ]);
 
   const [isOpenSamples, setIsOpenSamples] = useState(false);
@@ -835,6 +852,20 @@ const BotEditPage: React.FC = () => {
                   </div>
                 </div>
               </div>
+
+              <ExpandableDrawerGroup
+                isDefaultShow={false}
+                label={t('guardrailConfig.title')}
+                className="py-2">
+                <GuardrailConfig
+                  id={guardrailId}
+                  setGuardrailId={setGuardrailId}
+                  version={guardrailVersion}
+                  setGuardrailVersion={setGuardrailVersion}
+                  isLoading={isLoading}
+                  errorMessages={errorMessages}
+                />
+              </ExpandableDrawerGroup>
 
               <ExpandableDrawerGroup
                 isDefaultShow={false}

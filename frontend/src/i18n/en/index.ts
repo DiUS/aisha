@@ -139,17 +139,17 @@ const translation = {
         },
         pythonCodeAssistant: {
           title: 'Python Coding Assistant',
-          prompt: `Write a short and high-quality python script for the given task, something a very skilled python expert would write. You are writing code for an experienced developer so only add comments for things that are non-obvious. Make sure to include any imports required. 
+          prompt: `Write a short and high-quality python script for the given task, something a very skilled python expert would write. You are writing code for an experienced developer so only add comments for things that are non-obvious. Make sure to include any imports required.
 NEVER write anything before the \`\`\`python\`\`\` block. After you are done generating the code and after the \`\`\`python\`\`\` block, check your work carefully to make sure there are no mistakes, errors, or inconsistencies. If there are errors, list those errors in <error> tags, then generate a new version with those errors fixed. If there are no errors, write "CHECKED: NO ERRORS" in <error> tags.`,
         },
         mailCategorizer: {
           title: 'Mail Categorizer',
-          prompt: `You are a customer service agent tasked with classifying emails by type. Please output your answer and then justify your classification. 
+          prompt: `You are a customer service agent tasked with classifying emails by type. Please output your answer and then justify your classification.
 
-The classification categories are: 
-(A) Pre-sale question 
-(B) Broken or defective item 
-(C) Billing question 
+The classification categories are:
+(A) Pre-sale question
+(B) Broken or defective item
+(C) Billing question
 (D) Other (please explain)
 
 How would you categorize this email?`,
@@ -452,6 +452,19 @@ How would you categorize this email?`,
           },
         },
       },
+    },
+    guardrailConfig: {
+      title: 'Guardrail Config',
+      description:
+        'You can configure the Guardrail to prevent the model from generating inappropriate responses.',
+      name: {
+        label: 'Name',
+        hint: 'The name of the Guardrail',
+      },
+      version: {
+        label: 'Version',
+        hint: 'The version of the Guardrail',
+      }
     },
     generationConfig: {
       title: 'Generation Config',

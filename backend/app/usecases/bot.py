@@ -36,6 +36,7 @@ from app.repositories.models.custom_bot import (
     GenerationParamsModel,
     KnowledgeModel,
     SearchParamsModel,
+    GuardrailConfig
 )
 from app.repositories.models.custom_bot_kb import BedrockKnowledgeBaseModel
 from app.routes.schemas.bot import (
@@ -46,6 +47,8 @@ from app.routes.schemas.bot import (
     BotModifyOutput,
     BotOutput,
     BotSummaryOutput,
+    GuardrailListOutput,
+    GuardrailDataOutput,
     ConversationQuickStarter,
     EmbeddingParams,
     GenerationParams,
@@ -63,6 +66,7 @@ from app.utils import (
     generate_presigned_url,
     get_current_time,
     move_file_in_s3,
+    list_guardrails
 )
 from boto3.dynamodb.conditions import Attr, Key
 from botocore.exceptions import ClientError
@@ -221,6 +225,7 @@ def create_new_bot(user_id: str, bot_input: BotInput) -> BotOutput:
                 if bot_input.bedrock_knowledge_base
                 else None
             ),
+            guardrail_config=bot_input.guardrail_config,
         ),
     )
     return BotOutput(
@@ -272,6 +277,11 @@ def create_new_bot(user_id: str, bot_input: BotInput) -> BotOutput:
                 **(bot_input.bedrock_knowledge_base.model_dump())
             )
             if bot_input.bedrock_knowledge_base
+            else None
+        ),
+        guardrail_config=(
+            GuardrailConfig(**(bot_input.guardrail_config.model_dump()))
+            if bot_input.guardrail_config
             else None
         ),
     )
@@ -400,6 +410,11 @@ def modify_owned_bot(
             if modify_input.bedrock_knowledge_base
             else None
         ),
+        guardrail_config=GuardrailConfig(
+            **(modify_input.guardrail_config.model_dump())
+            if modify_input.guardrail_config
+            else None
+        )
     )
 
     return BotModifyOutput(
@@ -444,6 +459,7 @@ def modify_owned_bot(
             if modify_input.bedrock_knowledge_base
             else None
         ),
+        guardrail_config=modify_input.guardrail_config,
     )
 
 
@@ -763,3 +779,27 @@ def remove_uploaded_file(user_id: str, bot_id: str, filename: str):
 def fetch_available_agent_tools():
     """Fetch available tools for bot."""
     return get_available_tools()
+
+
+def fetch_guardrails():
+    guardrails = list_guardrails()
+    guardrails = filter(lambda x: x['status'] == 'READY', guardrails)
+    results = []
+
+    # for each guardrail, get all versions
+    for guardrail in guardrails:
+        logger.info(f"Getting versions for: {guardrail}")
+        versioned_guardrails = list_guardrails(guardrail['id'])
+        versions = [v['version'] for v in versioned_guardrails]
+        sorted_versions = sorted(versions, reverse=True)
+        logger.info(f"Found versions: {sorted_versions}")
+        results.append(GuardrailDataOutput(
+            id=guardrail['id'],
+            name=guardrail['name'],
+            versions=[v['version'] for v in list_guardrails(guardrail['id'])],
+            default=guardrail['id'] == os.environ.get('DEFAULT_GUARDRAIL_ID', '')
+        ))
+
+    logger.info(f"Found guardrails: {results}")
+
+    return GuardrailListOutput(guardrails=results)
