@@ -225,7 +225,11 @@ def create_new_bot(user_id: str, bot_input: BotInput) -> BotOutput:
                 if bot_input.bedrock_knowledge_base
                 else None
             ),
-            guardrail_config=bot_input.guardrail_config,
+            guardrail_config=GuardrailConfig(
+                **(bot_input.guardrail_config.model_dump())
+                if bot_input.guardrail_config
+                else None
+            )
         ),
     )
     return BotOutput(
@@ -279,11 +283,7 @@ def create_new_bot(user_id: str, bot_input: BotInput) -> BotOutput:
             if bot_input.bedrock_knowledge_base
             else None
         ),
-        guardrail_config=(
-            GuardrailConfig(**(bot_input.guardrail_config.model_dump()))
-            if bot_input.guardrail_config
-            else None
-        ),
+        guardrail_config=bot_input.guardrail_config,
     )
 
 
