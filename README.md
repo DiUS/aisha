@@ -1,3 +1,69 @@
+# For Dius Devs
+
+Current state 23/8/2024:
+This repo is deployed (deployed via CDK from local - see instructions below), you can create an account and sign in at https://d11scinx7hb6tv.cloudfront.net/
+
+However chatting does not seem to work. Receiving `An error occurred while responding.`
+
+# Prerequisites
+
+- AWS Access - Dius GenAI account (012654631482) - ask on sys-admin slack channel
+
+# Deploying
+
+- Install npm packages
+
+```
+cd cdk
+npm ci
+```
+
+- Install [AWS CDK](https://aws.amazon.com/cdk/) if you haven't already got it
+
+```
+npm i -g aws-cdk
+```
+
+- (You can probably skip this step as this should already be done for Aisha). Before deploying the CDK, you will need to work with Bootstrap once for the region you are deploying to. In this example, we will deploy to the ap-southeast-2 region. Please replace your account id into `<account id>`.
+
+```
+cdk bootstrap aws://<account id>/ap-southeast-2
+```
+
+Make sure you have a profile setup in `~/.aws/credentials`.
+You can get access keys from the AWS start page https://d-97677dca1f.awsapps.com/start/#/ to paste into there. It looks something like this:
+
+```
+[012654631482_AWSAdministratorAccess]
+aws_access_key_id=xxx
+aws_secret_access_key=xxx
+aws_session_token=xxx
+```
+
+Deploy using your profile setup above.
+
+```
+AWS_DEFAULT_REGION=ap-southeast-2 cdk deploy --require-approval never --all --profile 012654631482_AWSAdministratorAccess
+```
+
+- You will get output similar to the following. The URL of the web app will be output in `AishaBedrockChatStack.FrontendURL`, so please access it from your browser.
+
+```sh
+ ✅  AishaBedrockChatStack
+
+✨  Deployment time: 78.57s
+
+Outputs:
+AishaBedrockChatStack.AuthUserPoolClientIdXXXXX = xxxxxxx
+AishaBedrockChatStack.AuthUserPoolIdXXXXXX = ap-northeast-1_XXXX
+AishaBedrockChatStack.BackendApiBackendApiUrlXXXXX = https://xxxxx.execute-api.ap-northeast-1.amazonaws.com
+AishaBedrockChatStack.FrontendURL = https://xxxxx.cloudfront.net
+```
+
+---
+
+AWS ORIGINAL README BELOW
+
 # Bedrock Claude Chat
 
 ![](https://github.com/aws-samples/bedrock-claude-chat/actions/workflows/cdk.yml/badge.svg)
@@ -140,7 +206,6 @@ It's an architecture built on AWS managed services, eliminating the need for inf
 ### TODOs
 
 - [ ] Default guardrail does not contain the context grounding as this is not available in the cdk yet (Eventhough it exists for Cloud Formation templates). Need to add this manually and create a new version.
-
 
 Super-easy Deployment uses [AWS CodeBuild](https://aws.amazon.com/codebuild/) to perform deployment by CDK internally. This section describes the procedure for deploying directly with CDK.
 

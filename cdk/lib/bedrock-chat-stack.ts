@@ -28,7 +28,6 @@ import { Guardrail } from "./constructs/guardrail";
 
 export interface BedrockChatStackProps extends StackProps {
   readonly bedrockRegion: string;
-  readonly webAclId: string;
   readonly identityProviders: TIdentityProvider[];
   readonly userPoolDomainPrefix: string;
   readonly publishedApiAllowedIpV4AddressRanges: string[];
@@ -40,7 +39,6 @@ export interface BedrockChatStackProps extends StackProps {
   readonly embeddingContainerVcpu: number;
   readonly embeddingContainerMemory: number;
   readonly selfSignUpEnabled: boolean;
-  readonly enableIpV6: boolean;
   readonly natgatewayCount: number;
 }
 
@@ -136,9 +134,7 @@ export class BedrockChatStack extends cdk.Stack {
 
     const frontend = new Frontend(this, "Frontend", {
       accessLogBucket,
-      webAclId: props.webAclId,
       enableMistral: props.enableMistral,
-      enableIpV6: props.enableIpV6,
     });
 
     const auth = new Auth(this, "Auth", {
@@ -172,38 +168,45 @@ export class BedrockChatStack extends cdk.Stack {
 
     // Default guardrail
     const guardrail = new Guardrail(this, "DefaultGuardrail", {
-      blockedInputMessaging: 'The model cannot answer this.',
-      blockedOutputsMessaging: 'The model failed to answer this.',
-      name: 'AishaDefaultGuardrail',
+      blockedInputMessaging: "The model cannot answer this.",
+      blockedOutputsMessaging: "The model failed to answer this.",
+      name: "AishaDefaultGuardrail",
 
       contentPolicyConfig: {
-        filtersConfig: [{
-          inputStrength: 'HIGH',
-          outputStrength: 'HIGH',
-          type: 'SEXUAL',
-        }, {
-          inputStrength: 'HIGH',
-          outputStrength: 'HIGH',
-          type: 'HATE',
-        }, {
-          inputStrength: 'HIGH',
-          outputStrength: 'HIGH',
-          type: 'VIOLENCE',
-        }, {
-          inputStrength: 'HIGH',
-          outputStrength: 'HIGH',
-          type: 'INSULTS',
-        }, {
-          inputStrength: 'HIGH',
-          outputStrength: 'HIGH',
-          type: 'MISCONDUCT',
-        }, {
-          inputStrength: 'HIGH',
-          outputStrength: 'NONE',
-          type: 'PROMPT_ATTACK',
-        }],
+        filtersConfig: [
+          {
+            inputStrength: "HIGH",
+            outputStrength: "HIGH",
+            type: "SEXUAL",
+          },
+          {
+            inputStrength: "HIGH",
+            outputStrength: "HIGH",
+            type: "HATE",
+          },
+          {
+            inputStrength: "HIGH",
+            outputStrength: "HIGH",
+            type: "VIOLENCE",
+          },
+          {
+            inputStrength: "HIGH",
+            outputStrength: "HIGH",
+            type: "INSULTS",
+          },
+          {
+            inputStrength: "HIGH",
+            outputStrength: "HIGH",
+            type: "MISCONDUCT",
+          },
+          {
+            inputStrength: "HIGH",
+            outputStrength: "NONE",
+            type: "PROMPT_ATTACK",
+          },
+        ],
       },
-      description: 'standard guardrail. Extremely restrictive',
+      description: "standard guardrail. Extremely restrictive",
       // Can add PII if necessary
       // sensitiveInformationPolicyConfig: {
       //   piiEntitiesConfig: [{
@@ -220,16 +223,20 @@ export class BedrockChatStack extends cdk.Stack {
       //   }],
       // },
       topicPolicyConfig: {
-        topicsConfig: [{
-          definition: 'Anything related to political opinions or advises',
-          name: 'Politics',
-          type: 'DENY',
-        }],
+        topicsConfig: [
+          {
+            definition: "Anything related to political opinions or advises",
+            name: "Politics",
+            type: "DENY",
+          },
+        ],
       },
       wordPolicyConfig: {
-        managedWordListsConfig: [{
-          type: 'PROFANITY',
-        }],
+        managedWordListsConfig: [
+          {
+            type: "PROFANITY",
+          },
+        ],
         // Can add specific words to block
         // wordsConfig: [{
         //   text: 'word to block'

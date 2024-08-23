@@ -2,7 +2,6 @@
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
 import { BedrockChatStack } from "../lib/bedrock-chat-stack";
-import { FrontendWafStack } from "../lib/frontend-waf-stack";
 import { TIdentityProvider } from "../lib/utils/identity-provider";
 import { CronScheduleProps } from "../lib/utils/cron-schedule";
 
@@ -50,18 +49,6 @@ const EMBEDDING_CONTAINER_MEMORY: number = app.node.tryGetContext(
 // how many nat gateways
 const NATGATEWAY_COUNT: number = app.node.tryGetContext("natgatewayCount");
 
-// WAF for frontend
-// 2023/9: Currently, the WAF for CloudFront needs to be created in the North America region (us-east-1), so the stacks are separated
-// https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-wafv2-webacl.html
-const waf = new FrontendWafStack(app, `AishaFrontendWafStack`, {
-  env: {
-    // account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: "us-east-1",
-  },
-  allowedIpV4AddressRanges: ALLOWED_IP_V4_ADDRESS_RANGES,
-  allowedIpV6AddressRanges: ALLOWED_IP_V6_ADDRESS_RANGES,
-});
-
 const chat = new BedrockChatStack(app, `AishaBedrockChatStack`, {
   env: {
     // account: process.env.CDK_DEFAULT_ACCOUNT,
@@ -69,8 +56,6 @@ const chat = new BedrockChatStack(app, `AishaBedrockChatStack`, {
   },
   crossRegionReferences: true,
   bedrockRegion: BEDROCK_REGION,
-  webAclId: waf.webAclArn.value,
-  enableIpV6: waf.ipV6Enabled,
   identityProviders: IDENTITY_PROVIDERS,
   userPoolDomainPrefix: USER_POOL_DOMAIN_PREFIX,
   publishedApiAllowedIpV4AddressRanges:
@@ -86,4 +71,3 @@ const chat = new BedrockChatStack(app, `AishaBedrockChatStack`, {
   selfSignUpEnabled: SELF_SIGN_UP_ENABLED,
   natgatewayCount: NATGATEWAY_COUNT,
 });
-chat.addDependency(waf);
