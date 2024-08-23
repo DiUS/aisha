@@ -5,6 +5,8 @@ This repo is deployed (deployed via CDK from local - see instructions below), yo
 
 However chatting does not seem to work. Receiving `An error occurred while responding.`
 
+Logs from chatting are available in Cloud watch under the `AishaWebsocket` log group
+
 # Prerequisites
 
 - AWS Access - Dius GenAI account (012654631482) - ask on sys-admin slack channel
@@ -38,12 +40,13 @@ You can get access keys from the AWS start page https://d-97677dca1f.awsapps.com
 aws_access_key_id=xxx
 aws_secret_access_key=xxx
 aws_session_token=xxx
+region=ap-southeast-2
 ```
 
 Deploy using your profile setup above.
 
 ```
-AWS_DEFAULT_REGION=ap-southeast-2 cdk deploy --require-approval never --all --profile 012654631482_AWSAdministratorAccess
+cdk deploy --require-approval never --all --profile 012654631482_AWSAdministratorAccess
 ```
 
 - You will get output similar to the following. The URL of the web app will be output in `AishaBedrockChatStack.FrontendURL`, so please access it from your browser.
